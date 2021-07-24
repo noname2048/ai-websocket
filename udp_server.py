@@ -30,8 +30,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
         while True:
             data, addr = sock.recvfrom(1024)
             print(f'[{now()}] from({addr[0]}:{addr[1]}), receved: {data.decode()}')
-            d = jwt.decode(jwt=data, key=key, algorithms="HS256")
-            print(d)
+            try:
+                d = jwt.decode(jwt=data, key=key, algorithms="HS256")
+                print(d)
+            except (jwt.InvalidSignatureError, jwt.InvalidTokenError) as e:
+                print("invalid")
             
     except KeyboardInterrupt as e:
         print("--- udp server ended successful ---")
