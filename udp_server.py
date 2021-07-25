@@ -1,7 +1,10 @@
 # udp python pure server
 import socket
 import datetime
+from typing import Tuple
 import jwt
+import json
+import csv
 
 # jwt info
 key = "abcdefghijklmnop"
@@ -21,6 +24,9 @@ def now() -> str:
 def validate_token(token: str):
     jwt.decode(jwt=token, key=key, algorithms=["HS256"])
     
+data: dict[list[dict]] = {"ariduino_1": []}
+
+collection = list()
 
 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
     try:
@@ -31,12 +37,21 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
             data, addr = sock.recvfrom(1024)
             print(f'[{now()}] from({addr[0]}:{addr[1]}), receved: {data.decode()}')
             try:
-                d = jwt.decode(jwt=data, key=key, algorithms="HS256")
+                d: dict = jwt.decode(jwt=data, key=key, algorithms="HS256")
+                d["time"] = now()
                 print(d)
+                collection.append(d)
+
             except (jwt.InvalidSignatureError, jwt.InvalidTokenError) as e:
                 print("invalid")
             
     except KeyboardInterrupt as e:
+
+        with open("data.csv", "a") as csvfile:
+            fields = ["time", "temperature", "humidity"]
+            writer = csv.DictWriter(csvfile, fieldnames=fields)
+            writer.writerows(collection)
+        
         print("--- udp server ended successful ---")
 
 

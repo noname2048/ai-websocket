@@ -28,8 +28,8 @@ def create_token(temperature: str, humidity: str) -> bytes:
         'humidity': humidity,
     }
     print(payload)
-    encoded = jwt.encode(payload=payload, key=key, algorithm="HS256")
-    return encoded
+    encoded: str = jwt.encode(payload=payload, key=key, algorithm="HS256")
+    return encoded.encode()
 
 # socket algorithm
 
