@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+    redis:
+        image: redis:6.2
+        # environment: 
+        ports:
+            - 9003:6379 
+        volumes:
+            - ./docker-volumes/redis:/data 
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 2s
+            timeout: 3s
+            retries: 5
+
+    postgres:
+        image: postgres:13
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=example
+            - PGTZ=Asia/Seoul
+        ports:
+            - 15001:5432
+        volumes:
+            - ./docker-volumes/postgresql:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "PGPASSWORD=example", "pg_isready", "-U", "postgres"]
+            interval: 3s
+            timeout: 1s
+            retries: 5
