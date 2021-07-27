@@ -7,9 +7,11 @@ class Device(Base):
     __tablename__ = "devices"
 
     id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+    position = Column(String)
     is_active = Column(Boolean, default=True)
 
-class Data(Base):
+class ReceiveData(Base):
     __tablename = "datas"
 
     time = Column(DateTime)
