@@ -1,7 +1,33 @@
-from fastapi import FastAPI, WebSocket
+from typing import List
+
+from fastapi import Depends, FastAPI, HTTPException, WebSocket
+from sqlalchemy.orm import Session
+
+from fastapi.params import Depends
 from fastapi.responses import HTMLResponse
 
+from sql_about import crud, models, schemas
+from sqlalchemy import SessionLocal, engine
+
+import uvicorn
+
+models.Base.metadata.create_all(bind=engine)
+
 app = FastAPI()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@app.post("/devices/", response_model=schemas.Device)
+def create_device(device: schemas.DeviceCreate, db: Session = Depends(get_db)):
+    db_device = crud.get_device(db)
+    if db_device:
+        raise HTTPException(status_code=400, detail="device already registerd")
+    return crud.create_device(db=db, device=device)
 
 html = """
 <!DOCTYPE html>
@@ -48,3 +74,6 @@ async def websocket_endpoint(websocket: WebSocket):
     while True:
         data = await websocket.receive_text()
         await websocket.send_text(f"Message text was: {data}")
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
