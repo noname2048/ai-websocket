@@ -11,7 +11,7 @@ key = 'abcdefghijklmnop'
 
 # network info
 host: int = "127.0.0.1"
-port: str = 8030
+port: str = 8050
 
 # timezone info
 KST = datetime.timezone(datetime.timedelta(hours=9))
